@@ -128,7 +128,7 @@ namespace TVRC_console
 
             cards.RemoveAt(0);
             
-            for (int j = 0; j < cards.Count; ++j)
+            for (int j = 0; j < cards.Count-1; j+=2)
             {
                 gfx.DrawRectangle(pen, 0, y * height, page.Width / 2, height);
                 gfx.DrawRectangle(pen, page.Width / 2, y * height, page.Width /2, height);
