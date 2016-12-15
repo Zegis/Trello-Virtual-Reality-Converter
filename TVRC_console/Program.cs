@@ -19,6 +19,7 @@ namespace TVRC_console
             string baseUrl = "https://api.trello.com/1/";
             string key;
             string token;
+            bool generateQr = false;
 
             using (StreamReader file = new StreamReader("Config.txt"))
             {
@@ -93,16 +94,18 @@ namespace TVRC_console
             }
 
             List<Bitmap> qrCodes = new List<Bitmap>();
-
-            for(int j=0; j < cards.Count; ++j)
+            if (generateQr)
             {
-                QRCodeGenerator qrGenerator = new QRCodeGenerator();
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(cards[j].url, QRCodeGenerator.ECCLevel.Q);
-                QRCode qrCode = new QRCode(qrCodeData);
-                //Bitmap qrCodeImage = qrCode.GetGraphic(20);
-                qrCodes.Add(qrCode.GetGraphic(20));
+                for(int j=0; j < cards.Count; ++j)
+                {
+                    QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                    QRCodeData qrCodeData = qrGenerator.CreateQrCode(cards[j].url, QRCodeGenerator.ECCLevel.Q);
+                    QRCode qrCode = new QRCode(qrCodeData);
+                    //Bitmap qrCodeImage = qrCode.GetGraphic(20);
+                    qrCodes.Add(qrCode.GetGraphic(20));
 
-                //qrCodeImage.Save("output/" + cards[j].name + ".jpg");
+                    //qrCodeImage.Save("output/" + cards[j].name + ".jpg");
+                }
             }
 
             PdfDocument document = new PdfDocument();
@@ -111,26 +114,34 @@ namespace TVRC_console
             PdfPage page;
 
             
-            XFont font = new XFont("Verdana", 20, XFontStyle.Regular);
+            XFont font = new XFont("Verdana", 18, XFontStyle.Regular);
             XStringFormat format = new XStringFormat();
             XPen pen = new XPen(XColors.Black, 2);
             XImage img;
 
             int y = 0;
-            int height = 165;
+            int height = 120;
 
             page = document.AddPage();
             XGraphics gfx = XGraphics.FromPdfPage(page);
             XTextFormatter tf = new XTextFormatter(gfx);
 
+            cards.RemoveAt(0);
+            
             for (int j = 0; j < cards.Count; ++j)
             {
-                gfx.DrawRectangle(pen, 0, y * height, page.Width, height);
-                img = XImage.FromGdiPlusImage(qrCodes[j]);
-                gfx.DrawImage(img, 2, 2 + y * height, 160, 160);
-                tf.DrawString(cards[j].name, font, XBrushes.Black, new XRect(180, 15 + y*height, page.Width - 180, height), XStringFormats.TopLeft);
+                gfx.DrawRectangle(pen, 0, y * height, page.Width / 2, height);
+                gfx.DrawRectangle(pen, page.Width / 2, y * height, page.Width /2, height);
+                if(generateQr)
+                {
+                    img = XImage.FromGdiPlusImage(qrCodes[j]);
+                    gfx.DrawImage(img, 2, 2 + y * height, 160, 160);
+                }
+                tf.DrawString(cards[j].name, font, XBrushes.Black, new XRect(10, 15 + y*height, page.Width /2 - 10, height), XStringFormats.TopLeft);
+                if(j+1 < cards.Count)
+                    tf.DrawString(cards[j+1].name, font, XBrushes.Black, new XRect(page.Width / 2 + 10 , 15 + y * height, page.Width / 2 - 10, height), XStringFormats.TopLeft);
 
-                if (y < 4)
+                if (y < 5)
                 {
                     ++y;
                 }
