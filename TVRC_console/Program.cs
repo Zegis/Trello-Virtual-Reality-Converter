@@ -126,7 +126,7 @@ namespace TVRC_console
             XGraphics gfx = XGraphics.FromPdfPage(page);
             XTextFormatter tf = new XTextFormatter(gfx);
 
-            cards.RemoveAt(0);
+           // cards.RemoveAt(0);
             
             for (int j = 0; j < cards.Count-1; j+=2)
             {
